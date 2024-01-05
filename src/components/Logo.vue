@@ -159,11 +159,6 @@ $color5: #DCD7D4; // White Sand
     opacity: 0;
   }
 
-  #projects-hidden--container::v-deep #ojects:hover~#b {
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-
   #s:hover~#ojects {
     opacity: 0;
     transition: opacity 1s ease;
@@ -262,6 +257,13 @@ $color5: #DCD7D4; // White Sand
       opacity: 1;
       cursor: pointer;
     }
+  }
+
+
+
+  #projects-hidden--container:hover~#b, #s:hover~#b {
+    opacity: 0;
+    transition: opacity 1s ease;
   }
 
   #b:hover {
