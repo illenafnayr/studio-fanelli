@@ -5,6 +5,7 @@
     <div :style="{ opacity: hoverS ? 0 : 1 }" id="pr" @mouseover="startRotation" @mouseout="stopRotation">
       Pr
     </div>
+    <!-- Maybe Make into a semicolon -->
     <span id="s" class="visible-letter" @mouseover="hoverS = true" @mouseout="hoverS = false">
       S
     </span>
@@ -18,7 +19,7 @@
     </div>
     <div id="design-develop-innovate">design. develop. innovate.</div>
     <div id="projects-hidden--container">
-      <div id="ojects" @mouseover="startRotation" @mouseout="stopRotation" class="projects-hidden--letters">
+      <div id="ojects" @mouseover="startRotation" @mouseout="stopRotation" @click="toggleProjects" class="projects-hidden--letters">
         <span class="letter" style="transform: rotate(-180deg);">o</span>
         <span class="letter" style="transform: rotate(180deg);">j</span>
         <span class="letter" style="transform: rotate(-270deg);">e</span>
@@ -31,7 +32,7 @@
     - io sono Ryan Fanelli...
     -->
     <span id="b" class="visible-letter">
-      B
+      //
     </span>
   </div>
 </template>
@@ -42,6 +43,7 @@ export default {
   data() {
     return {
       hoverS: false,
+      projectsHovered: false,
     };
   },
   methods: {
@@ -51,16 +53,33 @@ export default {
     stopRotation() {
       document.getElementById('pr').classList.remove('rotate-on-hover');
     },
+    toggleProjects() {
+      this.projectsHovered = !this.projectsHovered;
+    },
   },
 };
 </script>
 
 <style scoped lang="scss">
-// Film Noir Palette
-$color1: #413E3D; // Raven
-$color2: #A7A1A7; // Gull Grey
-$color3: #c71f2d; // High Risk Red
-$color4: #A19E9D; // Ash
+// // Film Noir Palette
+// $color1: #413E3D; // Raven
+// $color2: #A7A1A7; // Gull Grey
+// $color3: #c71f2d; // High Risk Red
+// $color4: #A19E9D; // Ash
+// $color5: #DCD7D4; // White Sand
+
+// Henry Taylor Palette
+// $color1: #452005; // Brown/Red
+// $color2: #037c7c; // Gull Grey
+// $color3: #c71f2d; // High Risk Red
+// $color4: #A19E9D; // Ash
+// $color5: #DCD7D4; // White Sand
+
+// Henry Taylor Palette 2
+$color2: #451805d6; // Brown/Red
+$color3: #037c7c; // Gull Grey
+$color1: #d4390d; // High Risk Red
+$color4: #004f0b; // Ash
 $color5: #DCD7D4; // White Sand
 
 .letters-container {
@@ -75,7 +94,7 @@ $color5: #DCD7D4; // White Sand
     left: 23.5rem;
     bottom: -3rem;
     opacity: 1;
-    transition: opacity 1s ease, transform 2s ease;
+    transition: opacity 1s ease, width 20s ease;
     z-index: 1;
     height: fit-content;
     color: $color1;
@@ -85,16 +104,18 @@ $color5: #DCD7D4; // White Sand
     content: "";
     position: absolute;
     bottom: -25px;
-    /* Adjust this value to control the distance between text and line */
     left: 0;
-    width: 100%;
+    width: 0;
     height: 5px;
-    /* Adjust this value to control the line thickness */
     background-color: $color1;
-    transform-origin: 75%;
-    transform: scaleX(0);
-    /* Initial scale to make the line invisible */
-    transition: transform 1s ease;
+    transform-origin: 0% 100%;
+    /* Adjusted transform-origin */
+    transition: width 2s ease;
+  }
+
+  #pr.rotate-on-hover::after {
+    width: 380%;
+    transition: width 2s ease;
   }
 
   #pr.rotate-on-hover {
@@ -103,11 +124,6 @@ $color5: #DCD7D4; // White Sand
     transition: transform 1s ease;
   }
 
-  #pr.rotate-on-hover::after {
-    transform: scaleX(-50);
-    transition: transform 2s ease;
-    /* Scale to make the line visible */
-  }
 
   #s {
     font-weight: bold;
@@ -208,8 +224,9 @@ $color5: #DCD7D4; // White Sand
   #design-develop-innovate {
     position: absolute;
     font-size: 1.75rem;
-    top: calc(25rem + -8px);
-    right: 44.75rem;
+    top: 25rem;
+    // right: 44.75rem; for B
+    right: 46rem; // FOR //
     width: -moz-max-content;
     width: max-content;
     transition: 0.5s ease;
@@ -261,7 +278,8 @@ $color5: #DCD7D4; // White Sand
 
 
 
-  #projects-hidden--container:hover~#b, #s:hover~#b {
+  #projects-hidden--container:hover~#b,
+  #s:hover~#b {
     opacity: 0;
     transition: opacity 1s ease;
   }

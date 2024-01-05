@@ -7,6 +7,9 @@
 </template>
 
 <style lang="scss">
+body {
+  // background-color: rgb(252, 252, 252);
+}
 // @import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
