@@ -1,18 +1,34 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <CurlyBrackets @click="showPage = !showPage"/>
+    <Logo v-if="showPage" />
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import Logo from '@/components/Logo.vue'
+import CurlyBrackets from '@/components/CurlyBrackets.vue';
 
 export default {
   name: 'HomeView',
   components: {
-    HelloWorld
+    Logo,
+    CurlyBrackets
+  },
+  data() {
+    return {
+      showPage: false
+    }
   }
 }
 </script>
+
+<style scoped lang="scss">
+  .home {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
