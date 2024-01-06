@@ -8,7 +8,7 @@
 
 <style lang="scss">
 body {
-  // background-color: rgb(252, 252, 252);
+  background-color: #fdf6e3
 }
 // @import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
 #app {

@@ -14,7 +14,7 @@
 
 <script>
 const CLOSED_WIDTH = '125px';
-const OPEN_WIDTH = '575px';
+const OPEN_WIDTH = '475px';
 const CLOSED_LETTER_SPACING = '-25px';
 const OPEN_LETTER_SPACING = '10px';
 const TRANSITION = '0.75s ease';
@@ -73,6 +73,7 @@ $color5: #DCD7D4; // White Sand
   display: inline-block;
   overflow: hidden;
   cursor: pointer;
+  padding-bottom: 3rem;
 }
 
 .ellipses {
@@ -87,7 +88,7 @@ $color5: #DCD7D4; // White Sand
   justify-content: space-between;
   padding: 0 10px;
 
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: bold;
 }
 

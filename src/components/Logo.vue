@@ -6,7 +6,7 @@
       Pr
     </div>
     <!-- Maybe Make into a semicolon -->
-    <span id="s" class="visible-letter" @mouseover="hoverS = true" @mouseout="hoverS = false">
+    <!-- <span id="s" @mouseover="hoverS = true" @mouseout="hoverS = false">
       S
     </span>
     <div id="studio-fanelli-hidden--container">
@@ -16,10 +16,11 @@
       <div id="fanelli" class="studio-fanelli-hidden--letters">
         Fanelli
       </div>
-    </div>
+    </div> -->
     <div id="design-develop-innovate">design. develop. innovate.</div>
     <div id="projects-hidden--container">
-      <div id="ojects" @mouseover="startRotation" @mouseout="stopRotation" @click="toggleProjects" class="projects-hidden--letters">
+      <div id="ojects" @mouseover="startRotation" @mouseout="stopRotation" @click="toggleProjects"
+        class="projects-hidden--letters">
         <span class="letter" style="transform: rotate(-180deg);">o</span>
         <span class="letter" style="transform: rotate(180deg);">j</span>
         <span class="letter" style="transform: rotate(-270deg);">e</span>
@@ -31,9 +32,15 @@
     <!-- Lines become one or rotate to become underline or carot for text
     - io sono Ryan Fanelli...
     -->
-    <span id="b" class="visible-letter">
-      //
-    </span>
+    <div class="slash-container">
+      <span id="slash-left" class="slash">
+        /
+      </span>
+      <span id="slash-right" class="slash">
+        /
+      </span>
+      <div id="about-me">Not only a dedicated software engineer with a passion for knowledge and creativity, but also an innovative problem solver with keen observation skills. An amicable person that will inspire confidence and curiosity amongst a team. I deliver performance driven by efficiency and adaptability.</div>
+    </div>
   </div>
 </template>
 
@@ -90,11 +97,10 @@ $color5: #DCD7D4; // White Sand
     font-size: 11rem;
     font-weight: bold;
     transform: rotate(90deg);
-    position: relative;
-    left: 23.5rem;
-    bottom: -3rem;
+    position: absolute;
+    left: 23rem;
     opacity: 1;
-    transition: opacity 1s ease, width 20s ease;
+    transition: opacity 1s ease;
     z-index: 1;
     height: fit-content;
     color: $color1;
@@ -103,10 +109,10 @@ $color5: #DCD7D4; // White Sand
   #pr::after {
     content: "";
     position: absolute;
-    bottom: -25px;
-    left: 0;
+    bottom: 0;
+    right: -31rem;
     width: 0;
-    height: 5px;
+    height: 2.5px;
     background-color: $color1;
     transform-origin: 0% 100%;
     /* Adjusted transform-origin */
@@ -114,7 +120,7 @@ $color5: #DCD7D4; // White Sand
   }
 
   #pr.rotate-on-hover::after {
-    width: 380%;
+    width: 225%;
     transition: width 2s ease;
   }
 
@@ -130,21 +136,21 @@ $color5: #DCD7D4; // White Sand
     font-size: 18rem;
     color: $color2;
     cursor: pointer;
-    position: relative;
+    position: absolute;
     transition: opacity 1s ease;
     height: fit-content;
   }
 
-  #b {
-    transform: rotate(180deg);
+  .slash {
+    // transform: rotate(180deg);
     font-weight: 500;
     font-size: 15rem;
     color: $color3;
     cursor: pointer;
-    position: relative;
+    position: absolute;
     right: 35rem;
-    top: 15.5rem;
-    transition: opacity 1s ease;
+    top: 25rem;
+    transition: opacity 1s ease, letter-spacing 2s ease;
     height: fit-content;
     z-index: 10;
   }
@@ -171,7 +177,7 @@ $color5: #DCD7D4; // White Sand
     opacity: 1;
   }
 
-  #pr:hover~#b {
+  #pr:hover~.slash-container {
     opacity: 0;
   }
 
@@ -188,8 +194,7 @@ $color5: #DCD7D4; // White Sand
   .hidden-container {
     display: flex;
     flex-direction: column;
-    position: relative;
-    top: 1px;
+    position: absolute;
   }
 
   .hidden--letters {
@@ -209,13 +214,13 @@ $color5: #DCD7D4; // White Sand
     }
 
     #tudio {
-      position: relative;
+      position: absolute;
       top: 40px;
       color: $color2;
     }
 
     #fanelli {
-      position: relative;
+      position: absolute;
       bottom: 48px;
       color: $color1;
     }
@@ -224,9 +229,8 @@ $color5: #DCD7D4; // White Sand
   #design-develop-innovate {
     position: absolute;
     font-size: 1.75rem;
-    top: 25rem;
-    // right: 44.75rem; for B
-    right: 46rem; // FOR //
+    top: 21.85rem;
+    right: 25.2rem;
     width: -moz-max-content;
     width: max-content;
     transition: 0.5s ease;
@@ -241,7 +245,7 @@ $color5: #DCD7D4; // White Sand
   }
 
   #projects-hidden--container {
-    position: relative;
+    position: absolute;
     z-index: 2;
     @extend .hidden-container;
 
@@ -252,9 +256,8 @@ $color5: #DCD7D4; // White Sand
     }
 
     #ojects {
-      position: relative;
-      left: -23.5rem;
-      top: calc(3rem + -1px);
+      position: absolute;
+      left: -11rem;
       color: $color1;
       opacity: 0.25;
     }
@@ -276,17 +279,50 @@ $color5: #DCD7D4; // White Sand
     }
   }
 
-
-
-  #projects-hidden--container:hover~#b,
-  #s:hover~#b {
-    opacity: 0;
-    transition: opacity 1s ease;
+  .slash-container {
+    position: absolute;
+    width: 100%;
+    left: 0rem;
+    top: 0rem;
   }
 
-  #b:hover {
-    transform: rotate(0deg);
-    transition: 1s ease;
+  #slash-left {
+    left: 23rem;
+    transition: left 2s ease, transform 2s ease, top 2s ease;
+  }
+
+  #slash-right {
+    right: 55rem;
+    transition: right 2s ease, transform 2s ease, top 2s ease;
+  }
+
+  .slash-container:hover {
+    #slash-left {
+      top: 20rem;
+      left: 20rem;
+      transform: rotate(-22deg);
+    }
+
+    #slash-right {
+      right: 20rem;
+      transform: rotate(-22deg);
+    }
+
+    #about-me {
+      opacity: 1;
+      transition: opacity 5s ease;
+    }
+  }
+
+  #about-me {
+    width: 40%;
+    position: absolute;
+    bottom: -36rem;
+    opacity: 0;
+    left: 27rem;
+    top: 31rem;
+    font-size: 1.25rem;
+    color: $color2
   }
 }
 </style>
