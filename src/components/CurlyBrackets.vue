@@ -15,11 +15,19 @@
 <script>
 const CLOSED_WIDTH = '125px';
 const OPEN_WIDTH = '475px';
+// const OPEN_WIDTH_MOBILE = '325px';
 const CLOSED_LETTER_SPACING = '-25px';
 const OPEN_LETTER_SPACING = '10px';
+// const OPEN_LETTER_SPACING_MOBILE = '5px';
 const TRANSITION = '0.75s ease';
 
 export default {
+  props: {
+    text: {
+      type: String,
+      default: 'Studio Fanelli'
+    },
+  },
   data() {
     return {
       expanded: false,
@@ -28,7 +36,6 @@ export default {
       clicked: false,
       containerWidth: CLOSED_WIDTH,
       hoverEnabled: true,
-      text: 'Studio Fanelli',
       letterSpacing: CLOSED_LETTER_SPACING,
       containerTransition: `width ${TRANSITION}, letter-spacing ${TRANSITION}`,
     };
@@ -73,7 +80,7 @@ $color5: #DCD7D4; // White Sand
   display: inline-block;
   overflow: hidden;
   cursor: pointer;
-  padding-bottom: 3rem;
+  padding-bottom: 5rem;
 }
 
 .ellipses {
