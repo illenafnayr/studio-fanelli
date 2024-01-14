@@ -48,10 +48,12 @@ export default {
         faceapi.matchDimensions(this.canvas, displaySize);
 
         setInterval(async () => {
-          this.canvas.getContext('2d').drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-
           const detections = await faceapi.detectAllFaces(this.video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors().withFaceExpressions();
           const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
+          this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height);
+          this.canvas.getContext('2d').drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+
           faceapi.draw.drawDetections(this.canvas, resizedDetections);
           faceapi.draw.drawFaceLandmarks(this.canvas, resizedDetections);
           faceapi.draw.drawFaceExpressions(this.canvas, resizedDetections);
@@ -62,6 +64,6 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 /* Add your component styles here */
 </style>
