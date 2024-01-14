@@ -2,6 +2,7 @@
   <div class="home">
     <CurlyBrackets :text="updatedText" @click="showPage = !showPage" />
     <Vignelli v-if="showPage" @text-updated="handleTextUpdate" />
+    <FacialRecognition />
     <!-- <Logo v-if="showPage" /> -->
   </div>
 </template>
@@ -11,6 +12,7 @@
 // import Logo from '@/components/Logo.vue'
 import Vignelli from '@/components/Vignelli.vue';
 import CurlyBrackets from '@/components/CurlyBrackets.vue';
+import FacialRecognition from '@/components/FacialRecognition.vue';
 
 export default {
   name: 'HomeView',
@@ -18,6 +20,7 @@ export default {
     // Logo,
     CurlyBrackets,
     Vignelli,
+    FacialRecognition,
 },
   methods: {
     handleTextUpdate(updatedText) {

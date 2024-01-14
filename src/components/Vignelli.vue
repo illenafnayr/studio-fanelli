@@ -202,7 +202,7 @@ export default {
   display: grid;
   grid-column-gap: 10px;
   grid-row-gap: 10px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(7, 1fr);
 
   .circle {
     width: 2rem;
@@ -218,8 +218,8 @@ export default {
   }
 
   .circle:hover {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
   }
 }
 </style>
