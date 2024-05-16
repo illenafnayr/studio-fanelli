@@ -1,7 +1,6 @@
 <template>
-  <div>
-    <video ref="video" width="640" height="480" autoplay></video>
-    <canvas ref="canvas" width="640" height="480"></canvas>
+  <div class="video-container">
+    <video ref="video" width="1" height="1" autoplay></video>
   </div>
 </template>
 
@@ -10,6 +9,12 @@ import * as faceapi from 'face-api.js';
 
 export default {
   name: "FacialRecognition",
+  props: {
+    active: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       video: null,
@@ -17,9 +22,17 @@ export default {
       modelsLoaded: false,
     };
   },
+  watch: {
+    active(isActive) {
+      if (isActive) {
+        this.initCamera();
+      } else {
+        this.stopCamera();
+      }
+    },
+  },
   mounted() {
     this.initModels();
-    this.initCamera();
   },
   methods: {
     async initModels() {
@@ -34,36 +47,62 @@ export default {
     },
     async initCamera() {
       while (!this.modelsLoaded) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       this.video = this.$refs.video;
-      this.canvas = this.$refs.canvas;
+      // this.canvas = this.$refs.canvas;
 
       const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
       this.video.srcObject = stream;
 
       this.video.addEventListener('play', () => {
-        const displaySize = { width: this.video.width, height: this.video.height };
-        faceapi.matchDimensions(this.canvas, displaySize);
+        // const displaySize = { width: this.video.width, height: this.video.height };
+        // faceapi.matchDimensions(this.canvas, displaySize);
 
         setInterval(async () => {
-          const detections = await faceapi.detectAllFaces(this.video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors().withFaceExpressions();
-          const resizedDetections = faceapi.resizeResults(detections, displaySize);
+          try {
+            const detections = await faceapi.detectAllFaces(this.video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors().withFaceExpressions();
+            // console.log("Detections: ", detections[0].expressions)
+            let currentExpression = this.findMaxExpression(detections[0].expressions)
+            this.$emit('current-expression', currentExpression)
+          } catch (error) {
+            // swallow
+          }
 
-          this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height);
-          this.canvas.getContext('2d').drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 
-          faceapi.draw.drawDetections(this.canvas, resizedDetections);
-          faceapi.draw.drawFaceLandmarks(this.canvas, resizedDetections);
-          faceapi.draw.drawFaceExpressions(this.canvas, resizedDetections);
-        }, 100);
+        }, 1000);
       });
     },
+
+    stopCamera() {
+      if (this.video && this.video.srcObject) {
+        const tracks = this.video.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+        this.video.srcObject = null;
+        this.video.pause();
+      }
+    },
+
+    findMaxExpression(expressions) {
+      let maxExpression = "";
+      let maxValue = -Infinity;
+
+      for (let expression in expressions) {
+        if (expressions[expression] > maxValue) {
+          maxExpression = expression;
+          maxValue = expressions[expression];
+        }
+      }
+
+      return maxExpression;
+    }
   },
 };
 </script>
 
 <style scoped lang="scss">
-/* Add your component styles here */
+.video-container {
+  height: 0;
+}
 </style>
