@@ -1,7 +1,6 @@
 <template>
   <div @click="handleClick()" class="brackets-container" :class="{ 'open': clicked }" 
-       @mouseover="hoverEnabled && !clicked ? expandBrackets() : undefined" 
-       @mouseleave="hoverEnabled && !clicked ? contractBrackets() : hoverEnabled = true">
+       @mouseover="hoverEnabled && !clicked ? expandBrackets() : undefined">
     <div class="brackets"
       :style="{ width: containerWidth, letterSpacing: letterSpacing, transition: containerTransition }">
       <span>{{ '{' }}</span>
@@ -39,6 +38,12 @@ export default {
       letterSpacing: CLOSED_LETTER_SPACING,
       containerTransition: `width ${TRANSITION}, letter-spacing ${TRANSITION}`,
     };
+  },
+  watch: {
+    text(text) {
+      this.expandBrackets();
+      this.hoverEnabled = true;
+    },
   },
   methods: {
     handleClick() {

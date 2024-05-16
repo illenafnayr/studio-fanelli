@@ -49,6 +49,9 @@ export default {
     },
     toggleFacialRecognition() {
       this.facialRecognitionActive = !this.facialRecognitionActive;
+      if (this.facialRecognitionActive) {
+        this.handleTextUpdate("Smile")
+      }
     }
   }
 }
