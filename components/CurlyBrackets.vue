@@ -14,10 +14,10 @@
   <script>
   const CLOSED_WIDTH = '125px';
   const OPEN_WIDTH = '475px';
-  // const OPEN_WIDTH_MOBILE = '325px';
+  const OPEN_WIDTH_MOBILE = '375px';
   const CLOSED_LETTER_SPACING = '-25px';
   const OPEN_LETTER_SPACING = '10px';
-  // const OPEN_LETTER_SPACING_MOBILE = '5px';
+  const OPEN_LETTER_SPACING_MOBILE = '5px';
   const TRANSITION = '0.75s ease';
   
   export default {
@@ -59,8 +59,14 @@
       expandBrackets() {
         this.showText = true;
         this.fadeText = false;
-        this.containerWidth = OPEN_WIDTH;
-        this.letterSpacing = OPEN_LETTER_SPACING;
+        
+        if (window.innerWidth <= 768) {
+          this.containerWidth = OPEN_WIDTH_MOBILE;
+          this.letterSpacing = OPEN_LETTER_SPACING_MOBILE;
+        } else {
+          this.containerWidth = OPEN_WIDTH;
+          this.letterSpacing = OPEN_LETTER_SPACING;
+        }
       },
       contractBrackets() {
         this.fadeText = true;
@@ -74,13 +80,7 @@
   };
   </script>
   
-  <style scoped lang="scss">
-  $color1: #413E3D; // Raven
-  $color2: #A7A1A7; // Gull Grey
-  $color3: #c71f2d; // High Risk Red
-  $color4: #A19E9D; // Ash
-  $color5: #DCD7D4; // White Sand
-  
+  <style scoped lang="scss">  
   .brackets-container {
     display: inline-block;
     overflow: hidden;

@@ -333,7 +333,17 @@
           color8: '#d99734'
         }
         this.currentPalette = palette;
-  
+        // Shuffle the colors randomly
+        const colorKeys = Object.keys(palette);
+        const shuffledColors = [...colorKeys].sort(() => Math.random() - 0.5);
+        
+        // Create new palette with shuffled colors
+        const shuffledPalette = {};
+        colorKeys.forEach((key, index) => {
+          shuffledPalette[key] = palette[shuffledColors[index]];
+        });
+        
+        this.currentPalette = shuffledPalette;
         for (let i = 1; i <= 14; i++) {
           const circleId = `circle${i}`;
           const circleElement = document.getElementById(circleId);
@@ -380,6 +390,17 @@
     grid-row-gap: 10px;
     grid-template-columns: repeat(7, 1fr);
   
+    // Add media queries for responsiveness
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(7, 1fr);
+    }
+  
+    @media (max-width: 480px) {
+      grid-template-columns: repeat(7, 1fr);
+      grid-column-gap: 8px;
+      grid-row-gap: 8px;
+    }
+  
     .circle {
       width: 4.5rem;
       height: 4.5rem;
@@ -389,8 +410,20 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      // cursor: pointer;
       transition: width 0.6s ease, height 0.6s ease;
+  
+      // Adjust circle size for smaller screens
+      @media (max-width: 768px) {
+        width: 3.5rem;
+        height: 3.5rem;
+        font-size: 1.2rem;
+      }
+  
+      @media (max-width: 480px) {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1rem;
+      }
     }
   }
   </style>

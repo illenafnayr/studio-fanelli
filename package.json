@@ -12,6 +12,7 @@
   "dependencies": {
     "face-api.js": "^0.22.2",
     "nuxt": "^3.14.1592",
+    "p5": "^1.11.2",
     "sass": "^1.81.0",
     "vue": "latest",
     "vue-router": "latest"

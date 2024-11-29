@@ -1,5 +1,5 @@
 <template>
-  <div class="home" @mousemove="updateCursor" style="cursor: none;">
+  <div id="home" @mousemove="updateCursor" style="cursor: none;">
     <div @mouseenter="showText">
       <Vignelli @text-updated="handleTextUpdate" :expression="palette" class="hover-target" />
     </div>
@@ -13,12 +13,13 @@
       <span class="small-text">Try to smile!</span>
     </div>
 
-    <h1 class="text margin-top-l">Digital Solutions That Speak Your Story</h1>
-    <h2 class="text medium-text">Creative web development that unlocks innovative approaches to propel your business into new realms of digital possibility</h2>
+    <h1 class="reveal-element text margin-top-l">Digital Solutions That Speak Your Story</h1>
+    <h2 class="reveal-element text medium-text">Creative web development that unlocks innovative approaches to propel your business
+      into new realms of digital possibility</h2>
 
     <div class="duck-to-action margin-top-l">
-      <img id="duck" src="../assets/anna-duck.svg" alt="" class="animated-image">
-      <div class="text small-text">start your technological journey here</div>
+      <img @click="showText(); handleTextUpdate('Studio Fanelli')" id="duck" src="../assets/anna-duck.svg" alt="" class="animated-image">
+      <div class="small-text">start your technological journey here</div>
     </div>
 
     <!-- <div class="text medium-text">Throughout your technological journey, we provide inspiration, unlock innovative and
@@ -34,6 +35,33 @@
     </button>
     <button v-if="facialRecognitionActive" @click="toggleFacialRecognition" class="emotion-button">Turn off emotion
       detection</button> -->
+
+    <!-- Add new parallax section -->
+    <section class="reveal-element process-section">
+      <div class="parallax-background">
+        <div class="shape circle" :style="{ backgroundColor: getShapeColor('circle') }"></div>
+        <div class="shape square" :style="{ backgroundColor: getShapeColor('square') }"></div>
+        <div class="shape triangle" :style="{ borderBottomColor: getShapeColor('triangle') }"></div>
+      </div>
+      
+      <div class="process-content">
+        <h2 class="reveal-element text process-title visible">Our Process</h2>
+        
+        <div class="process-steps">
+          <svg class="connection-line" ref="connectionLine">
+            <path :d="pathData" fill="none" stroke="red" stroke-width="2" :stroke-dasharray="pathLength" :stroke-dashoffset="dashOffset"/>
+          </svg>
+          <div v-for="(step, index) in processSteps" 
+               :key="step.title"
+               class="process-step"
+               :class="{ 'visible': isStepVisible(index) }">
+            <div class="step-number">{{ index + 1 }}</div>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.description }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -61,7 +89,46 @@ export default {
       cursorX: 0,
       cursorY: 0,
       textVisible: false,
+      isTouchDevice: false,
+      processSteps: [
+        {
+          title: 'Ideation',
+          description: 'We transform your vision into concrete concepts through collaborative brainstorming.'
+        },
+        {
+          title: 'Wireframing',
+          description: 'Creating the blueprint of your digital solution with precise attention to user experience.'
+        },
+        {
+          title: 'Development',
+          description: 'Bringing your project to life with clean, efficient, and maintainable code.'
+        },
+        {
+          title: 'Testing',
+          description: 'Rigorous quality assurance to ensure a flawless user experience.'
+        },
+        {
+          title: 'Deployment',
+          description: 'Launching your solution with ongoing support and optimization.'
+        }
+      ],
+      visibleSteps: new Set(),
+      pathData: '',
+      pathLength: 0,
+      dashOffset: 0,
     }
+  },
+  mounted() {
+    // Detect touch device on mount
+    this.isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+    // If it's a touch device, show text immediately
+    if (this.isTouchDevice) {
+      this.showText();
+    }
+
+    window.addEventListener('scroll', this.handleScroll);
+    window.addEventListener('scroll', this.handleParallax);
   },
   methods: {
     handleTextUpdate(updatedText) {
@@ -85,41 +152,160 @@ export default {
     showText() {
       this.textVisible = true;
       this.$nextTick(() => {
-        this.$el.querySelectorAll('.text').forEach(textElement => {
-          textElement.classList.add('visible');
+        this.$el.querySelectorAll('.reveal-element').forEach(element => {
+          element.classList.add('revealed');
         });
       });
-    }
+    },
+    getShapeColor(shape) {
+      const colors = {
+        neutral: '#A8A8A8',
+        happy: '#FFD700',
+        sad: '#4682B4',
+        angry: '#DC143C',
+        surprised: '#9370DB'
+      };
+      return colors[this.palette] || colors.neutral;
+    },
+    isStepVisible(index) {
+      return this.visibleSteps.has(index);
+    },
+    handleScroll() {
+      const steps = document.querySelectorAll('.process-step');
+      steps.forEach((step, index) => {
+        const rect = step.getBoundingClientRect();
+        if (rect.top <= window.innerHeight * 0.75) {
+          this.visibleSteps.add(index);
+        }
+      });
+      this.updateDashOffset();
+    },
+    handleParallax() {
+      const scrolled = window.pageYOffset;
+      const shapes = document.querySelectorAll('.shape');
+      
+      shapes.forEach((shape) => {
+        const speed = shape.classList.contains('circle') ? 0.5 :
+                     shape.classList.contains('square') ? -0.3 : 0.2;
+        const yOffset = scrolled * speed;
+        const rotation = scrolled * 0.1; // Add rotation effect
+        
+        if (shape.classList.contains('square')) {
+          shape.style.transform = `rotate(${45 + rotation}deg) translateY(${yOffset}px)`;
+        } else if (shape.classList.contains('triangle')) {
+          shape.style.transform = `rotate(${rotation}deg) translateY(${yOffset}px)`;
+        } else {
+          shape.style.transform = `translateY(${yOffset}px)`;
+        }
+      });
+    },
+    updatePath() {
+      const steps = this.processSteps.map((_, index) => 
+        this.$refs['step' + index]?.[0]?.querySelector('.step-number')
+      ).filter(Boolean);
+      
+      if (steps.length < 2) return;
+
+      let path = 'M ';
+      steps.forEach((step, index) => {
+        const rect = step.getBoundingClientRect();
+        const x = rect.left + (rect.width / 2);
+        const y = rect.top + (rect.height / 2);
+        
+        if (index === 0) {
+          path += `${x} ${y}`;
+        } else {
+          const prevRect = steps[index - 1].getBoundingClientRect();
+          const prevX = prevRect.left + (prevRect.width / 2);
+          const prevY = prevRect.top + (prevRect.height / 2);
+          
+          // Create an S-curve between points
+          const distance = y - prevY;
+          path += ` C ${prevX} ${prevY + distance/3}, ${x} ${y - distance/3}, ${x} ${y}`;
+        }
+      });
+      
+      this.pathData = path;
+      
+      // Calculate the total length of the path
+      const pathElement = this.$refs.connectionLine?.querySelector('path');
+      if (pathElement) {
+        this.pathLength = pathElement.getTotalLength();
+        this.updateDashOffset();
+      }
+    },
+    updateDashOffset() {
+      const processSection = document.querySelector('.process-section');
+      const rect = processSection.getBoundingClientRect();
+      const scrollPercentage = Math.max(0, Math.min(1, 
+        (window.innerHeight - rect.top) / (rect.height + window.innerHeight)
+      ));
+      
+      this.dashOffset = this.pathLength - (scrollPercentage * this.pathLength);
+    },
+  },
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('scroll', this.handleParallax);
   }
 }
 </script>
 
 <style scoped lang="scss">
+// Variables
+$mobile-breakpoint: 480px;
+$tablet-breakpoint: 768px;
+$accent-color: #000;
+$text-transition: opacity 0.7s ease;
+
+// Mixins
+@mixin responsive($breakpoint) {
+  @media (max-width: #{$breakpoint}) {
+    @content;
+  }
+}
+
 #curly-brackets {
   margin-top: 4rem;
+
+  @include responsive($tablet-breakpoint) {
+    margin-top: 2rem;
+  }
+
+  @include responsive($mobile-breakpoint) {
+    margin-top: 1.5rem;
+  }
 }
 
 .margin-top-l {
   margin-top: 7.5rem;
+  
+  @include responsive($tablet-breakpoint) {
+    margin-top: 6rem;
+  }
+
+  @include responsive($mobile-breakpoint) {
+    margin-top: 4rem;
+  }
 }
 
-.home {
+#home {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding-top: 5rem;
 
   .duck-to-action {
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-  
+
     #duck {
       width: 5rem;
     }
   }
-
 
   .emotion-tools--container {
     display: flex;
@@ -128,20 +314,23 @@ export default {
   }
 
   .text {
-    width: 66.666%;
+    // width: 66.666%;
     font-size: 2rem;
     font-weight: bold;
-    letter-spacing: 10px;
-    opacity: 0;
-    transition: opacity 0.7s ease;
+    letter-spacing: 8px;
     margin: 0.5rem;
+    @extend .reveal-element;
+
+    @include responsive($tablet-breakpoint) {
+      width: 90%;
+    }
+
+    @include responsive($mobile-breakpoint) {
+      width: 95%;
+    }
   }
 
-  .text.visible {
-    opacity: 1;
-  }
-
-  .hover-target:hover~.text {
+  .hover-target:hover ~ .reveal-element {
     opacity: 1;
   }
 
@@ -155,8 +344,6 @@ export default {
     display: inline-block;
     font-size: 1rem;
     margin-top: 2rem;
-    // margin-bottom: 2rem;
-    // cursor: pointer;
     border-radius: 3px;
     transition: all 0.2s ease-in-out;
 
@@ -215,6 +402,148 @@ export default {
 
   100% {
     transform: translateY(0);
+  }
+}
+
+// On touch devices, always show text
+@media (hover: none) {
+  .reveal-element {
+    opacity: 1 !important;
+  }
+
+  .cursor {
+    display: none;
+  }
+}
+
+.process-section {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  overflow: visible;
+  margin-top: 10rem;
+
+  @media (min-width: $tablet-breakpoint) {
+    &::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+  }
+}
+
+.parallax-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.shape {
+  position: absolute;
+  opacity: 0.3;
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+}
+
+.circle {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  left: 10%;
+  top: 20%;
+}
+
+.square {
+  width: 200px;
+  height: 200px;
+  right: 15%;
+  top: 40%;
+}
+
+.triangle {
+  width: 0;
+  height: 0;
+  border-left: 150px solid transparent;
+  border-right: 150px solid transparent;
+  border-bottom: 260px solid currentColor;
+  position: fixed;
+  left: 5%;
+  top: 70%;
+  // transform: translateX(-50%);
+  z-index: 999;
+}
+
+.process-content {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+}
+
+.process-title {
+  text-align: center;
+  margin-bottom: 4rem;
+  width: 100%;
+}
+
+.process-steps {
+  position: relative;
+  width: 100%;
+}
+
+.process-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  text-align: center;
+  margin: 2rem 0;
+  
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--accent-color, #000);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .process-steps {
+    padding: 0 1rem;
+  }
+  
+  .shape {
+    transform: scale(0.7);
+  }
+}
+
+.reveal-element {
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  
+  &.revealed {
+    opacity: 1;
   }
 }
 </style>
