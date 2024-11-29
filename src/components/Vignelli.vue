@@ -302,15 +302,35 @@ export default {
       }
     },
     setInitialPalette() {
+      // const palette = {
+      //   color1: '#333333',  // Charcoal Gray
+      //   color2: '#666666',  // Steel Gray
+      //   color3: '#999999',  // Silver Gray
+      //   color4: '#CCCCCC',  // Platinum
+      //   color5: '#E5E5E5',  // Light Silver
+      //   color6: '#F2F2F2',  // Pale Silver
+      //   color7: '#FFFFFF',  // White
+      //   color8: '#1A1A1A',  // Dark Charcoal
+      // }
+      // const palette = {
+      //   color1: '#ff3855',  // Vivid Red
+      //   color2: '#00bfff',  // Sky Blue
+      //   color3: '#ffaa00',  // Golden Yellow
+      //   color4: '#6a0572',  // Deep Purple
+      //   color5: '#33cc33',  // Electric Green
+      //   color6: '#ff66b2',  // Pink Rose
+      //   color7: '#ffa500',  // Orange
+      //   color8: '#3c1361',  // Dark Indigo
+      // }
       const palette = {
-        color1: '#333333',  // Charcoal Gray
-        color2: '#666666',  // Steel Gray
-        color3: '#999999',  // Silver Gray
-        color4: '#CCCCCC',  // Platinum
-        color5: '#E5E5E5',  // Light Silver
-        color6: '#F2F2F2',  // Pale Silver
-        color7: '#FFFFFF',  // White
-        color8: '#1A1A1A',  // Dark Charcoal
+        color1: '#B13624',
+        color2: '#195767',
+        color3: '#8A272B',
+        color4: '#816E58',
+        color5: '#AB3909',
+        color6: '#00462C',
+        color7: '#1A3656',
+        color8: '#d99734'
       }
       this.currentPalette = palette;
 
@@ -369,7 +389,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    // cursor: pointer;
     transition: width 0.6s ease, height 0.6s ease;
   }
 }

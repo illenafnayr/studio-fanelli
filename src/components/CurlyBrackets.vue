@@ -84,7 +84,7 @@ $color5: #DCD7D4; // White Sand
 .brackets-container {
   display: inline-block;
   overflow: hidden;
-  cursor: pointer;
+  // cursor: pointer;
   padding-bottom: 5rem;
 }
 

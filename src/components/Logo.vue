@@ -135,7 +135,7 @@ $color5: #DCD7D4; // White Sand
     font-weight: bold;
     font-size: 18rem;
     color: $color2;
-    cursor: pointer;
+    // cursor: pointer;
     position: absolute;
     transition: opacity 1s ease;
     height: fit-content;
@@ -146,7 +146,7 @@ $color5: #DCD7D4; // White Sand
     font-weight: 500;
     font-size: 15rem;
     color: $color3;
-    cursor: pointer;
+    // cursor: pointer;
     position: absolute;
     right: 35rem;
     top: 25rem;
@@ -239,7 +239,7 @@ $color5: #DCD7D4; // White Sand
   }
 
   #design-develop-innovate:hover {
-    cursor: pointer;
+    // cursor: pointer;
     transition: 0.5s ease;
     color: $color4;
   }
@@ -275,7 +275,7 @@ $color5: #DCD7D4; // White Sand
 
     #ojects:hover {
       opacity: 1;
-      cursor: pointer;
+      // cursor: pointer;
     }
   }
 
