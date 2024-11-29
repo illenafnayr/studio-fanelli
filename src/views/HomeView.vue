@@ -13,12 +13,17 @@
       <span class="small-text">Try to smile!</span>
     </div>
 
-    <div class="text">Solutions That Speak Your Story.</div>
+    <h1 class="text margin-top-l">Digital Solutions That Speak Your Story</h1>
+    <h2 class="text medium-text">Creative web development that unlocks innovative approaches to propel your business into new realms of digital possibility</h2>
 
-    <div class="duck-to-action">
+    <div class="duck-to-action margin-top-l">
       <img id="duck" src="../assets/anna-duck.svg" alt="" class="animated-image">
-      <div>start here</div>
+      <div class="text small-text">start your technological journey here</div>
     </div>
+
+    <!-- <div class="text medium-text">Throughout your technological journey, we provide inspiration, unlock innovative and
+      creative approaches to propel your business into new realms of digital possibility.</div> -->
+    <div class="cursor" v-if="showCursor" :style="{ top: cursorY + 'px', left: cursorX + 'px' }"></div>
     <!-- <button v-if="!facialRecognitionActive" @click="toggleFacialRecognition" class="emotion-button"><img
         src="../assets/emotion-icon.png" alt="">
       <div>Emotion Detector</div>
@@ -26,12 +31,9 @@
         {{ !facialRecognitionActive ? 'Clicking button will activate your camera for visual effect only.' : '' }}
         Nothing
         is recorded or saved!</span>
-    </button>
-    <button v-if="facialRecognitionActive" @click="toggleFacialRecognition" class="emotion-button">Turn off emotion
+    </button> -->
+    <!-- <button v-if="facialRecognitionActive" @click="toggleFacialRecognition" class="emotion-button">Turn off emotion
       detection</button> -->
-    <div class="text">We guide you through your technological journey, provide inspiration, unlock innovative and
-      creative approaches to propel your business into new realms of possibility.</div>
-    <div class="cursor" v-if="showCursor" :style="{ top: cursorY + 'px', left: cursorX + 'px' }"></div>
   </div>
 </template>
 
@@ -97,6 +99,10 @@ export default {
   margin-top: 4rem;
 }
 
+.margin-top-l {
+  margin-top: 7.5rem;
+}
+
 .home {
   display: flex;
   flex-direction: column;
@@ -104,8 +110,11 @@ export default {
   align-items: center;
 
   .duck-to-action {
-    margin: 5rem 0;
-
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  
     #duck {
       width: 5rem;
     }
@@ -125,6 +134,7 @@ export default {
     letter-spacing: 10px;
     opacity: 0;
     transition: opacity 0.7s ease;
+    margin: 0.5rem;
   }
 
   .text.visible {
@@ -144,8 +154,8 @@ export default {
     text-decoration: none;
     display: inline-block;
     font-size: 1rem;
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
+    margin-top: 2rem;
+    // margin-bottom: 2rem;
     // cursor: pointer;
     border-radius: 3px;
     transition: all 0.2s ease-in-out;
@@ -161,8 +171,13 @@ export default {
   }
 
   .small-text {
-    font-size: 0.8rem;
-    color: gray;
+    font-size: 1rem;
+    letter-spacing: 5px;
+  }
+
+  .medium-text {
+    font-size: 1.5rem;
+    font-weight: 400;
   }
 }
 
