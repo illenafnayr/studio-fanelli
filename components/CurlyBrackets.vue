@@ -3,10 +3,10 @@
          @mouseover="hoverEnabled && !clicked ? expandBrackets() : undefined">
       <div class="brackets"
         :style="{ width: containerWidth, letterSpacing: letterSpacing, transition: containerTransition }">
-        <span>{{ '{' }}</span>
+        <span>{{ '' }}</span>
         <span v-if="showText" :class="{ faded: fadeText }">{{ text }}</span>
-        <span class="ellipses" v-if="!showText">...</span>
-        <span>{{ '}' }}</span>
+        <span class="ellipses" v-if="!showText"></span>
+        <span>{{ '' }}</span>
       </div>
     </div>
   </template>

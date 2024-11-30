@@ -1,10 +1,27 @@
 <template>
+  <head>
+    <title>Digital Solutions That Speak Your Story</title>
+    <meta name="description" content="Creative I.T solutions that unlock innovative approaches to propel your business into new realms of digital possibility." />
+    <meta name="keywords" content="digital solutions, IT solutions, business innovation, technology" />
+    <meta name="robots" content="index, follow" />
+  </head>
   <div id="home" @mousemove="updateCursor" style="cursor: none;">
     <div @mouseenter="showText">
-      <Vignelli @text-updated="handleTextUpdate" :expression="palette" class="hover-target" />
+      <Vignelli @text-updated="handleTextUpdate" :expression="palette" class="hover-target"
+        @mouseenter="hoveredOverVignelli = true;" />
+      <div>
+        <button v-if="hoveredOverVignelli && !facialRecognitionActive" @click="toggleFacialRecognition"
+          class="emotion-button reveal-element"><img src="../assets/emotion-icon.png" alt="">
+          <div>Mood Detector</div>
+        </button>
+        <button v-if="hoveredOverVignelli && facialRecognitionActive" @click="toggleFacialRecognition"
+          class="emotion-button">Turn off emotion
+          detection</button>
+      </div>
     </div>
     <div @mouseenter="showText">
-      <CurlyBrackets id="curly-brackets" :text="updatedText" @click="showPage = !showPage" class="hover-target" />
+      <CurlyBrackets id="curly-brackets" :text="updatedText" @click="showPage = !showPage"
+        class="hover-target reveal-element" />
     </div>
 
     <FacialRecognition :active="facialRecognitionActive" @current-expression="updatePalette($event)" />
@@ -13,28 +30,21 @@
       <span class="small-text">Try to smile!</span>
     </div>
 
-    <h1 class="reveal-element text margin-top-l">Digital Solutions That Speak Your Story</h1>
-    <h2 class="reveal-element text medium-text">Creative web development that unlocks innovative approaches to propel your business
-      into new realms of digital possibility</h2>
+    <div class="payoff">
+      <h1 class="reveal-element text margin-top-l">Digital Solutions That Speak Your Story</h1>
+      <h2 class="reveal-element text medium-text">Creative I.T solutions that unlock innovative approaches to propel
+        your business into new realms of digital possibility</h2>
+    </div>
+
 
     <div class="duck-to-action margin-top-l">
-      <img @click="showText(); handleTextUpdate('Studio Fanelli')" id="duck" src="../assets/anna-duck.svg" alt="" class="animated-image">
+      <img @click="showText(); handleTextUpdate('Studio Fanelli')" id="duck" src="../assets/anna-duck.svg" alt="Animated duck representing technological journey" class="animated-image">
       <div class="small-text">start your technological journey here</div>
     </div>
 
     <!-- <div class="text medium-text">Throughout your technological journey, we provide inspiration, unlock innovative and
       creative approaches to propel your business into new realms of digital possibility.</div> -->
     <div class="cursor" v-if="showCursor" :style="{ top: cursorY + 'px', left: cursorX + 'px' }"></div>
-    <!-- <button v-if="!facialRecognitionActive" @click="toggleFacialRecognition" class="emotion-button"><img
-        src="../assets/emotion-icon.png" alt="">
-      <div>Emotion Detector</div>
-      <span class="small-text">
-        {{ !facialRecognitionActive ? 'Clicking button will activate your camera for visual effect only.' : '' }}
-        Nothing
-        is recorded or saved!</span>
-    </button>
-    <button v-if="facialRecognitionActive" @click="toggleFacialRecognition" class="emotion-button">Turn off emotion
-      detection</button> -->
 
     <!-- Add new parallax section -->
     <section class="reveal-element process-section">
@@ -43,18 +53,17 @@
         <div class="shape square" :style="{ backgroundColor: getShapeColor('square') }"></div>
         <div class="shape triangle" :style="{ borderBottomColor: getShapeColor('triangle') }"></div>
       </div>
-      
+
       <div class="process-content">
         <h2 class="reveal-element text process-title visible">Our Process</h2>
-        
+
         <div class="process-steps">
           <svg class="connection-line" ref="connectionLine">
-            <path :d="pathData" fill="none" stroke="red" stroke-width="2" :stroke-dasharray="pathLength" :stroke-dashoffset="dashOffset"/>
+            <path :d="pathData" fill="none" stroke="red" stroke-width="2" :stroke-dasharray="pathLength"
+              :stroke-dashoffset="dashOffset" />
           </svg>
-          <div v-for="(step, index) in processSteps" 
-               :key="step.title"
-               class="process-step"
-               :class="{ 'visible': isStepVisible(index) }">
+          <div v-for="(step, index) in processSteps" :key="step.title" class="process-step"
+            :class="{ 'visible': isStepVisible(index) }">
             <div class="step-number">{{ index + 1 }}</div>
             <h3>{{ step.title }}</h3>
             <p>{{ step.description }}</p>
@@ -62,14 +71,17 @@
         </div>
       </div>
     </section>
+    <Post v-if="data && data.length" :post="data" />
   </div>
 </template>
 
-<script>
+<script ty>
 // @ is an alias to /src
+import { useRoute } from 'vue-router';
 import Vignelli from '@/components/Vignelli.vue';
 import CurlyBrackets from '@/components/CurlyBrackets.vue';
 import FacialRecognition from '@/components/FacialRecognition.vue';
+import Post from '~/components/Post.vue';
 
 export default {
   name: 'HomeView',
@@ -77,6 +89,42 @@ export default {
     CurlyBrackets,
     Vignelli,
     FacialRecognition,
+    Post
+  },
+  async setup() {
+    const route = useRoute();
+    const config = useRuntimeConfig();
+    const { data, refresh, pending } = await useFetch(config.public.wordpressUrl, {
+      method: 'get',
+      query: {
+        query: `
+         query NewQuery {
+           posts(first:10){
+             nodes {
+               title
+               date
+               excerpt
+               uri
+             }
+           }
+         }`
+      },
+      transform(data) {
+        return data.data.posts.nodes.map(node => ({
+          title: node.title,
+          date: node.date,
+          excerpt: node.excerpt,
+          uri: node.uri
+        }));
+      }
+    });
+
+    return {
+      data,
+      refresh,
+      pending,
+      // Return any other reactive properties or methods you need
+    };
   },
   data() {
     return {
@@ -93,29 +141,35 @@ export default {
       processSteps: [
         {
           title: 'Ideation',
-          description: 'We transform your vision into concrete concepts through collaborative brainstorming.'
+          description: 'Planting the Seed of Innovation: Every great solution begins with an idea. During this phase, we partner with you to transform your vision into tangible concepts through collaborative brainstorming. Together, we explore possibilities, define challenges, and identify opportunities, setting the foundation for a digital solution that meets your needs and exceeds your expectations.'
         },
         {
-          title: 'Wireframing',
-          description: 'Creating the blueprint of your digital solution with precise attention to user experience.'
+          title: 'Wireframing & Architecture Design',
+          description: 'Building the Blueprint of Your Vision: With a clear concept in mind, we sketch the framework of your digital solution. Through detailed wireframes and thoughtful architecture design, we focus on crafting a seamless user experience while ensuring a robust foundation for scalability and efficiency. This is where your vision takes its first shape, pixel by pixel, block by block.'
         },
         {
-          title: 'Development',
-          description: 'Bringing your project to life with clean, efficient, and maintainable code.'
+          title: 'Coding & Development',
+          description: 'Breathing Life into Your Idea: The blueprint comes to life in this stage. Our skilled developers bring your project to reality with clean, efficient, and maintainable code. By combining cutting-edge technologies with best practices, we ensure the digital solution is not only functional but also future-ready, embodying both form and function.'
         },
         {
           title: 'Testing',
-          description: 'Rigorous quality assurance to ensure a flawless user experience.'
+          description: 'Ensuring Perfection Through Precision: Every detail matters, and no stone is left unturned. Through rigorous testing and quality assurance, we identify and resolve potential issues to deliver a flawless user experience. From functionality to performance and security, we simulate real-world scenarios to guarantee your solution is ready for launch.'
         },
         {
           title: 'Deployment',
-          description: 'Launching your solution with ongoing support and optimization.'
+          description: 'Launching Your Dream into the World: Your solution is ready to meet the world. We handle the deployment process seamlessly, ensuring every detail is in place. But we don’t stop there—our commitment to you includes ongoing support to fine-tune performance and adapt to evolving needs, making sure your digital solution thrives.'
+        },
+        {
+          title: 'Monitoring & Support',
+          description: 'Cultivating Long-Term Success: The journey doesn’t end at deployment—it evolves. We continuously monitor your solution to maintain optimal performance, address any issues, and implement improvements. Our proactive support ensures that your solution grows and adapts alongside your business, ensuring its relevance and reliability for the long term.'
         }
       ],
+
       visibleSteps: new Set(),
       pathData: '',
       pathLength: 0,
       dashOffset: 0,
+      hoveredOverVignelli: false,
     }
   },
   mounted() {
@@ -179,17 +233,22 @@ export default {
         }
       });
       this.updateDashOffset();
+
+      // Call showText after scrolling a certain amount
+      if (window.scrollY > 200) { // Change 300 to your desired scroll amount
+        this.showText();
+      }
     },
     handleParallax() {
       const scrolled = window.pageYOffset;
       const shapes = document.querySelectorAll('.shape');
-      
+
       shapes.forEach((shape) => {
         const speed = shape.classList.contains('circle') ? 0.5 :
-                     shape.classList.contains('square') ? -0.3 : 0.2;
+          shape.classList.contains('square') ? -0.3 : 0.2;
         const yOffset = scrolled * speed;
         const rotation = scrolled * 0.1; // Add rotation effect
-        
+
         if (shape.classList.contains('square')) {
           shape.style.transform = `rotate(${45 + rotation}deg) translateY(${yOffset}px)`;
         } else if (shape.classList.contains('triangle')) {
@@ -200,10 +259,10 @@ export default {
       });
     },
     updatePath() {
-      const steps = this.processSteps.map((_, index) => 
+      const steps = this.processSteps.map((_, index) =>
         this.$refs['step' + index]?.[0]?.querySelector('.step-number')
       ).filter(Boolean);
-      
+
       if (steps.length < 2) return;
 
       let path = 'M ';
@@ -211,22 +270,22 @@ export default {
         const rect = step.getBoundingClientRect();
         const x = rect.left + (rect.width / 2);
         const y = rect.top + (rect.height / 2);
-        
+
         if (index === 0) {
           path += `${x} ${y}`;
         } else {
           const prevRect = steps[index - 1].getBoundingClientRect();
           const prevX = prevRect.left + (prevRect.width / 2);
           const prevY = prevRect.top + (prevRect.height / 2);
-          
+
           // Create an S-curve between points
           const distance = y - prevY;
-          path += ` C ${prevX} ${prevY + distance/3}, ${x} ${y - distance/3}, ${x} ${y}`;
+          path += ` C ${prevX} ${prevY + distance / 3}, ${x} ${y - distance / 3}, ${x} ${y}`;
         }
       });
-      
+
       this.pathData = path;
-      
+
       // Calculate the total length of the path
       const pathElement = this.$refs.connectionLine?.querySelector('path');
       if (pathElement) {
@@ -237,11 +296,14 @@ export default {
     updateDashOffset() {
       const processSection = document.querySelector('.process-section');
       const rect = processSection.getBoundingClientRect();
-      const scrollPercentage = Math.max(0, Math.min(1, 
+      const scrollPercentage = Math.max(0, Math.min(1,
         (window.innerHeight - rect.top) / (rect.height + window.innerHeight)
       ));
-      
+
       this.dashOffset = this.pathLength - (scrollPercentage * this.pathLength);
+    },
+    handleVignelliHover() {
+      this.hoveredOverVignelli = true;
     },
   },
   beforeDestroy() {
@@ -279,7 +341,7 @@ $text-transition: opacity 0.7s ease;
 
 .margin-top-l {
   margin-top: 7.5rem;
-  
+
   @include responsive($tablet-breakpoint) {
     margin-top: 6rem;
   }
@@ -307,6 +369,10 @@ $text-transition: opacity 0.7s ease;
     }
   }
 
+  .payoff {
+    width: 66.666%;
+  }
+
   .emotion-tools--container {
     display: flex;
     flex-direction: column;
@@ -330,7 +396,7 @@ $text-transition: opacity 0.7s ease;
     }
   }
 
-  .hover-target:hover ~ .reveal-element {
+  .hover-target:hover~.reveal-element {
     opacity: 1;
   }
 
@@ -343,7 +409,7 @@ $text-transition: opacity 0.7s ease;
     text-decoration: none;
     display: inline-block;
     font-size: 1rem;
-    margin-top: 2rem;
+    margin-top: 0.5rem;
     border-radius: 3px;
     transition: all 0.2s ease-in-out;
 
@@ -419,7 +485,7 @@ $text-transition: opacity 0.7s ease;
 .process-section {
   position: relative;
   min-height: 100vh;
-  width: 100vw;
+  width: 66.666%;
   overflow: visible;
   margin-top: 10rem;
 
@@ -501,14 +567,14 @@ $text-transition: opacity 0.7s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  // justify-content: center;
   min-height: 80vh;
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.6s ease, transform 0.6s ease;
   text-align: center;
   margin: 2rem 0;
-  
+
   &.visible {
     opacity: 1;
     transform: translateY(0);
@@ -532,7 +598,7 @@ $text-transition: opacity 0.7s ease;
   .process-steps {
     padding: 0 1rem;
   }
-  
+
   .shape {
     transform: scale(0.7);
   }
@@ -541,7 +607,7 @@ $text-transition: opacity 0.7s ease;
 .reveal-element {
   opacity: 0;
   transition: opacity 0.7s ease;
-  
+
   &.revealed {
     opacity: 1;
   }

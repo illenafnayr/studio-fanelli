@@ -411,6 +411,7 @@
       align-items: center;
       justify-content: center;
       transition: width 0.6s ease, height 0.6s ease;
+      color: white;
   
       // Adjust circle size for smaller screens
       @media (max-width: 768px) {
