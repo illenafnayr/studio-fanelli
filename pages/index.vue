@@ -1,10 +1,4 @@
 <template>
-  <head>
-    <title>Digital Solutions That Speak Your Story</title>
-    <meta name="description" content="Creative I.T solutions that unlock innovative approaches to propel your business into new realms of digital possibility." />
-    <meta name="keywords" content="digital solutions, IT solutions, business innovation, technology" />
-    <meta name="robots" content="index, follow" />
-  </head>
   <div id="home" @mousemove="updateCursor" style="cursor: none;">
     <div @mouseenter="showText">
       <Vignelli @text-updated="handleTextUpdate" :expression="palette" class="hover-target"
@@ -71,6 +65,7 @@
         </div>
       </div>
     </section>
+    POSTS:
     <Post v-if="data && data.length" :post="data" />
   </div>
 </template>
