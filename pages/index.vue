@@ -64,6 +64,8 @@
             <div class="step-number">{{ index + 1 }}</div>
             <h3>{{ step.title }}</h3>
             <p>{{ step.description }}</p>
+
+            <MoodBoard v-if="step.title === 'Ideation'"" />
           </div>
         </div>
       </div>
@@ -80,6 +82,7 @@ import CurlyBrackets from '@/components/CurlyBrackets.vue';
 import FacialRecognition from '@/components/FacialRecognition.vue';
 import Post from '~/components/Post.vue';
 import WordPressAPI from '@/services/WordPressAPI'; // Import the new class
+import MoodBoard from '~/components/mood-board/MoodBoard.vue';
 
 export default {
   name: 'HomeView',
@@ -87,7 +90,8 @@ export default {
     CurlyBrackets,
     Vignelli,
     FacialRecognition,
-    Post
+    Post,
+    MoodBoard
   },
   async setup() {
     const api = new WordPressAPI(); // Create an instance of the WordPressAPI class
@@ -466,6 +470,7 @@ $text-transition: opacity 0.7s ease;
 
 .cursor {
   position: fixed;
+  z-index: 99999;
   width: 20px;
   height: 20px;
   border-radius: 50%;
