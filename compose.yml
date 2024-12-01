@@ -1,0 +1,46 @@
+services:
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: GaiaTech
+      WORDPRESS_DB_PASSWORD: G!n4&J4$m!ne2008
+      WORDPRESS_DB_NAME: studio-fanelli
+    volumes:
+      - wordpress_data:/var/www/html
+      - .wordpress/wp-content/plugins:/var/www/html/wp-content/plugins 
+
+  db:
+    image: mysql:8.0
+    platform: linux/arm64
+    environment:
+      MYSQL_ROOT_PASSWORD: G!n4&J4$m!ne2008
+      MYSQL_DATABASE: studio-fanelli
+      MYSQL_USER: GaiaTech
+      MYSQL_PASSWORD: G!n4&J4$m!ne2008
+    volumes:
+      - db_data:/var/lib/mysql
+
+  nuxt:
+    build:
+      context: .
+    image: node:18
+    container_name: nuxt
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - wordpress
+
+volumes:
+  wordpress_data:
+  db_data:
