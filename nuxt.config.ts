@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: {
     public: {
-      wordpressUrl: "http://localhost:8000/graphql",
+      wordpressUrl: "http://localhost:8080/index.php?graphql",
     },
   },
 });

@@ -70,8 +70,8 @@
   </div>
 </template>
 
-<script ty>
-// @ is an alias to /src
+<script>
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import Vignelli from '@/components/Vignelli.vue';
 import CurlyBrackets from '@/components/CurlyBrackets.vue';
@@ -89,36 +89,66 @@ export default {
   async setup() {
     const route = useRoute();
     const config = useRuntimeConfig();
-    const { data, refresh, pending } = await useFetch(config.public.wordpressUrl, {
-      method: 'get',
-      query: {
-        query: `
-         query NewQuery {
-           posts(first:10){
-             nodes {
-               title
-               date
-               excerpt
-               uri
-             }
-           }
-         }`
-      },
-      transform(data) {
-        return data.data.posts.nodes.map(node => ({
+    const data = ref([]);
+    const loading = ref(true);
+
+    const fetchPosts = async () => {
+      console.log('Starting WordPress fetch with URL:', config.public.wordpressUrl);
+      
+      try {
+        const response = await fetch(config.public.wordpressUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: `
+             query AllPosts {
+               posts(first: 100) {
+                 nodes {
+                   title
+                   date
+                   excerpt
+                   uri
+                   id
+                 }
+               }
+             }`
+          }),
+        });
+
+        const result = await response.json();
+        console.log('Raw WordPress response:', result);
+
+        if (!result || !result.data || !result.data.posts || !result.data.posts.nodes) {
+          console.error('Invalid WordPress response structure:', result);
+          return [];
+        }
+
+        const transformedData = result.data.posts.nodes.map(node => ({
           title: node.title,
           date: node.date,
           excerpt: node.excerpt,
-          uri: node.uri
+          uri: node.uri,
+          id: node.id
         }));
+
+        console.log('Transformed WordPress data:', transformedData);
+        data.value = transformedData; // Assign the transformed data
+      } catch (error) {
+        console.error('Error fetching WordPress data:', error);
+      } finally {
+        loading.value = false; // Set loading to false after fetch
       }
+    };
+
+    onMounted(() => {
+      fetchPosts();
     });
 
     return {
       data,
-      refresh,
-      pending,
-      // Return any other reactive properties or methods you need
+      loading,
     };
   },
   data() {
