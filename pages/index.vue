@@ -3,19 +3,21 @@
     <div @mouseenter="showText">
       <Vignelli @text-updated="handleTextUpdate" :expression="palette" class="hover-target"
         @mouseenter="hoveredOverVignelli = true;" />
-      <div>
+      <div class="mood-detector">
         <button v-if="hoveredOverVignelli && !facialRecognitionActive" @click="toggleFacialRecognition"
-          class="emotion-button reveal-element"><img src="../assets/emotion-icon.png" alt="">
+          class="emotion-button reveal-element" style="position: absolute;">
+          <img src="../assets/emotion-icon.png" alt="">
           <div>Mood Detector</div>
         </button>
         <button v-if="hoveredOverVignelli && facialRecognitionActive" @click="toggleFacialRecognition"
-          class="emotion-button">Turn off emotion
-          detection</button>
+          class="emotion-button" style="position: absolute;">
+          Turn off emotion detection
+        </button>
       </div>
     </div>
-    <div @mouseenter="showText">
+    <div class="sub-logo">
       <CurlyBrackets id="curly-brackets" :text="updatedText" @click="showPage = !showPage"
-        class="hover-target reveal-element" />
+        class="hover-target reveal-element" style="position: absolute;" />
     </div>
 
     <FacialRecognition :active="facialRecognitionActive" @current-expression="updatePalette($event)" />
@@ -25,14 +27,15 @@
     </div>
 
     <div class="payoff">
-      <h1 class="reveal-element text margin-top-l">Digital Solutions That Speak Your Story</h1>
+      <h1 class="reveal-element text">Digital Solutions That Speak Your Story</h1>
       <h2 class="reveal-element text medium-text">Creative I.T solutions that unlock innovative approaches to propel
         your business into new realms of digital possibility</h2>
     </div>
 
 
     <div class="duck-to-action margin-top-l">
-      <img @click="showText(); handleTextUpdate('Studio Fanelli')" id="duck" src="../assets/anna-duck.svg" alt="Animated duck representing technological journey" class="animated-image">
+      <img @click="showText(); handleTextUpdate('Studio Fanelli')" id="duck" src="../assets/anna-duck.svg"
+        alt="Animated duck representing technological journey" class="animated-image">
       <div class="small-text">start your technological journey here</div>
     </div>
 
@@ -72,11 +75,11 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
 import Vignelli from '@/components/Vignelli.vue';
 import CurlyBrackets from '@/components/CurlyBrackets.vue';
 import FacialRecognition from '@/components/FacialRecognition.vue';
 import Post from '~/components/Post.vue';
+import WordPressAPI from '@/services/WordPressAPI'; // Import the new class
 
 export default {
   name: 'HomeView',
@@ -87,53 +90,13 @@ export default {
     Post
   },
   async setup() {
-    const route = useRoute();
-    const config = useRuntimeConfig();
+    const api = new WordPressAPI(); // Create an instance of the WordPressAPI class
     const data = ref([]);
     const loading = ref(true);
 
     const fetchPosts = async () => {
-      console.log('Starting WordPress fetch with URL:', config.public.wordpressUrl);
-      
       try {
-        const response = await fetch(config.public.wordpressUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            query: `
-             query AllPosts {
-               posts(first: 100) {
-                 nodes {
-                   title
-                   date
-                   excerpt
-                   uri
-                   id
-                 }
-               }
-             }`
-          }),
-        });
-
-        const result = await response.json();
-        console.log('Raw WordPress response:', result);
-
-        if (!result || !result.data || !result.data.posts || !result.data.posts.nodes) {
-          console.error('Invalid WordPress response structure:', result);
-          return [];
-        }
-
-        const transformedData = result.data.posts.nodes.map(node => ({
-          title: node.title,
-          date: node.date,
-          excerpt: node.excerpt,
-          uri: node.uri,
-          id: node.id
-        }));
-
-        console.log('Transformed WordPress data:', transformedData);
+        const transformedData = await api.fetchPosts(); // Use the new method
         data.value = transformedData; // Assign the transformed data
       } catch (error) {
         console.error('Error fetching WordPress data:', error);
@@ -258,7 +221,11 @@ export default {
         }
       });
       this.updateDashOffset();
-
+      if (this.isTouchDevice & window.scrollY > 100) {
+        this.hoveredOverVignelli = true;
+        console.log("Is touch device")
+        this.handleTextUpdate("Studio Fanelli")
+      }
       // Call showText after scrolling a certain amount
       if (window.scrollY > 200) { // Change 300 to your desired scroll amount
         this.showText();
@@ -383,6 +350,26 @@ $text-transition: opacity 0.7s ease;
   align-items: center;
   padding-top: 5rem;
 
+  .mood-detector {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 3rem;
+  }
+
+  .sub-logo {
+    position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 4rem;
+    
+      @include responsive($tablet-breakpoint) {
+        margin-top: 6rem;
+      }
+    }
+
   .duck-to-action {
     text-align: center;
     display: flex;
@@ -390,12 +377,18 @@ $text-transition: opacity 0.7s ease;
     align-items: center;
 
     #duck {
-      width: 5rem;
+      width: 6rem;
     }
   }
 
+  
   .payoff {
+    margin-top: 4rem;
     width: 66.666%;
+    @include responsive($tablet-breakpoint) {
+      width: 100%;
+      padding: 0.5rem;
+    }
   }
 
   .emotion-tools--container {
@@ -413,11 +406,14 @@ $text-transition: opacity 0.7s ease;
     @extend .reveal-element;
 
     @include responsive($tablet-breakpoint) {
-      width: 90%;
+      width: 95%;
     }
 
     @include responsive($mobile-breakpoint) {
-      width: 95%;
+      width: 100%;
+      font-size: large;
+      text-align: center;
+      margin-bottom: 2rem;
     }
   }
 
@@ -451,11 +447,20 @@ $text-transition: opacity 0.7s ease;
   .small-text {
     font-size: 1rem;
     letter-spacing: 5px;
+    max-width: 275px;
+
+    @include responsive($mobile-breakpoint) {
+      font-size: 1.1rem;
+    }
   }
 
   .medium-text {
     font-size: 1.5rem;
     font-weight: 400;
+
+    @include responsive($mobile-breakpoint) {
+      font-size: 1.2rem;
+    }
   }
 }
 
@@ -525,6 +530,9 @@ $text-transition: opacity 0.7s ease;
       pointer-events: none;
     }
   }
+  @include responsive($tablet-breakpoint) {
+      width: 100%;
+    }
 }
 
 .parallax-background {

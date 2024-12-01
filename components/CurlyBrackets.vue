@@ -24,7 +24,7 @@
     props: {
       text: {
         type: String,
-        default: 'Studio Fanelli'
+        default: ''
       },
     },
     data() {
