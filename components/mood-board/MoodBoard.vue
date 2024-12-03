@@ -1,5 +1,5 @@
 <template>
-    <div class="mood-board">
+    <div class="mood-board" ref="moodBoard">
         <h2 v-if="!isMobileDevice && !isEditing" class="mood-board-title" @dblclick="isEditing = true">{{ title }}</h2>
         <input v-if="isMobileDevice || isEditing" class="mood-board-title-edit" v-model="title"
             @blur="isEditing = false" @keyup.enter="isEditing = false" placeholder="Mood Board Title" />
@@ -10,19 +10,24 @@
         <div v-for="(img, index) in images" :key="index" class="target">
             <Moveable
                 class="moveable"
-                v-bind:target="['.mood-board-image']"
+                v-bind:target="[`.mood-board-image-${index}`]"
                 v-bind:draggable="true"
                 v-bind:scalable="true"
                 v-bind:rotatable="true"
+                v-bind:bounds="boundsContainer"
                 @drag="onDrag"
                 @scale="onScale"
                 @rotate="onRotate"
             />
-            <img :src="img" alt="Mood Board Image" class="mood-board-image" />
+            <img 
+                :src="img" 
+                :class="['mood-board-image', `mood-board-image-${index}`]" 
+                alt="Mood Board Image" 
+            />
         </div>
-
     </div>
 </template>
+
 <script>
 import Toolbar from './Toolbar.vue';
 import Moveable from 'vue3-moveable';
@@ -38,15 +43,18 @@ export default {
             isEditing: false,
             title: 'Mood Board Title',
             images: [],
-            imageWidth: 100, // Set default width to 100
-            imageHeight: 250, // Default height
-            imageX: 0, // Default x position
-            imageY: 0, // Default y position
+            boundsContainer: null
         };
     },
     mounted() {
         this.isMobileDevice = this.checkIfMobile();
-        console.log("this.isMobileDevice", this.isMobileDevice)
+        // Set the bounds to the mood board container
+        this.boundsContainer = {
+            left: 0,
+            top: 0,
+            right: this.$refs.moodBoard.offsetWidth,
+            bottom: this.$refs.moodBoard.offsetHeight
+        };
     },
     methods: {
         checkIfMobile() {
@@ -60,6 +68,15 @@ export default {
             const reader = new FileReader();
             reader.onload = (event) => {
                 this.images.push(event.target.result);
+                // Update bounds after adding a new image
+                this.$nextTick(() => {
+                    this.boundsContainer = {
+                        left: 0,
+                        top: 0,
+                        right: this.$refs.moodBoard.offsetWidth,
+                        bottom: this.$refs.moodBoard.offsetHeight
+                    };
+                });
             };
             reader.readAsDataURL(file);
         },
@@ -87,9 +104,8 @@ export default {
     }
 }
 </script>
+
 <style lang="scss">
-
-
 .mood-board {
     width: 90vw;
     max-width: 1200px;
@@ -106,6 +122,8 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative; // Important for absolute positioning of child elements
+    overflow: hidden; // Prevents content from overflowing
 }
 
 .mood-board-title {
@@ -126,7 +144,6 @@ export default {
     margin-top: 1rem;
     border-radius: 3px;
     text-align: center;
-
 }
 
 .mood-board-image {
@@ -136,6 +153,7 @@ export default {
     border: 1px solid #ccc;
     border-radius: 5px;
     display: block; // Ensure the image is treated as a block element
+    position: absolute; // Allow precise positioning
 }
 
 @media (max-width: 768px) {
