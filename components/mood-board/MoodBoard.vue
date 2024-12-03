@@ -8,22 +8,10 @@
             @prebuilt-item-added="handlePrebuiltItemAdded" />
 
         <div v-for="(img, index) in images" :key="index" class="target">
-            <Moveable
-                class="moveable"
-                v-bind:target="[`.mood-board-image-${index}`]"
-                v-bind:draggable="true"
-                v-bind:scalable="true"
-                v-bind:rotatable="true"
-                v-bind:bounds="boundsContainer"
-                @drag="onDrag"
-                @scale="onScale"
-                @rotate="onRotate"
-            />
-            <img 
-                :src="img" 
-                :class="['mood-board-image', `mood-board-image-${index}`]" 
-                alt="Mood Board Image" 
-            />
+            <Moveable class="moveable" v-bind:target="[`.mood-board-image-${index}`]" v-bind:draggable="true"
+                v-bind:scalable="true" v-bind:rotatable="true" v-bind:bounds="boundsContainer" @drag="onDrag"
+                @scale="onScale" @rotate="onRotate" />
+            <img :src="img" :class="['mood-board-image', `mood-board-image-${index}`]" alt="Mood Board Image" />
         </div>
     </div>
 </template>
@@ -127,6 +115,8 @@ export default {
 }
 
 .mood-board-title {
+    position: relative;
+    z-index: 999;
     background-color: rgba(255, 255, 255, 0.718);
     padding: 0.5rem;
     border-radius: 5px;
