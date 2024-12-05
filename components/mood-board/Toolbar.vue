@@ -6,12 +6,28 @@
             <img id="color-select-icon" src="../../assets/color-select-icon.png" @click="openColorSelector" />
             <img id="shape-icon" src="../../assets/shape-icon.png" @click="addShape" />
             <img id="prebuilt-icon" src="../../assets/prebuilt-icon.png" @click="addPrebuiltItem" />
+            
+            <!-- New Snap to Grid toggle -->
+            <div class="snap-to-grid-container">
+                <input 
+                    type="checkbox" 
+                    id="snap-to-grid" 
+                    v-model="isSnapToGridEnabled"
+                    @change="toggleSnapToGrid"
+                />
+                <label for="snap-to-grid">Snap to Grid</label>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 export default {
+    data() {
+        return {
+            isSnapToGridEnabled: false
+        };
+    },
     methods: {
         addText() {
             // Logic to add text
@@ -40,6 +56,10 @@ export default {
         addPrebuiltItem() {
             // Logic to add prebuilt item
             this.$emit('prebuilt-item-added'); // Emit event
+        },
+        toggleSnapToGrid() {
+            // Emit an event with the current state of snap to grid
+            this.$emit('snap-to-grid-toggled', this.isSnapToGridEnabled);
         }
     }
 }
@@ -53,8 +73,8 @@ export default {
     flex-direction: column;
     border: 1px solid black;
     border-radius: 3px;
-    height: 12rem;
-    width: 2.67rem;
+    height: 15rem;
+    width: 3.5rem;
     align-self: flex-start;
     margin: 1.8rem;
     background-color: white;
@@ -69,13 +89,11 @@ export default {
         img {
             border: 1px solid black;
             border-radius: 3px;
-            width: 1.5rem;
-            height: 1.5rem;
-            padding: 0.2rem;
+            width: 2rem;
+            height: 2rem;
+            padding: 0.3rem;
             transition: all 0.3s ease-in-out;
             cursor: pointer;
-
-            // Subtle shadow for depth
             filter: brightness(0.9) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 
             &:hover {
@@ -90,32 +108,41 @@ export default {
         }
 
         #text-icon {
-            scale: 1.1;
+            scale: 1.2;
         }
 
         #add-image-icon {
             border: none;
-            scale: 1.5;
+            scale: 1.6;
         }
 
         #color-select-icon {
             border: none;
-            scale: 1.5;
+            scale: 1.6;
         }
 
-        // Specific icon hover effects
         #text-icon:hover {
-            background-color: rgba(44, 62, 80, 0.1); // Deep blue-grey tint
+            background-color: rgba(44, 62, 80, 0.1);
             border: 1px solid rgb(51, 51, 51);
         }
 
-        // #add-image-icon:hover {
-        //     // background-color: rgba(52, 152, 219, 0.1); // Vibrant blue tint
-        // }
+        // Snap to Grid container styling
+        .snap-to-grid-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 0.5rem;
+            
+            input[type="checkbox"] {
+                margin-bottom: 0.25rem;
+            }
 
-        // #color-select-icon:hover {
-        //     background-color: rgba(155, 89, 182, 0.1); // Rich purple tint
-        // }
+            label {
+                font-size: 0.7rem;
+                text-align: center;
+                white-space: nowrap;
+            }
+        }
     }
 }
 

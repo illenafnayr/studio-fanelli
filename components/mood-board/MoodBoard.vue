@@ -2,21 +2,33 @@
     <div class="mood-board" ref="moodBoard">
         <h2 v-if="!isMobileDevice && !isEditing" class="mood-board-title" @dblclick="isEditing = true">{{ title }}</h2>
         <input v-if="isMobileDevice || isEditing" class="mood-board-title-edit" v-model="title"
-            @blur="isEditing = false" @keyup.enter="isEditing = false" placeholder="Mood Board Title" />
+            @blur="isEditing = false" @keyup.enter="isEditing = false" placeholder="My Mood Board" />
         <Toolbar @text-added="handleTextAdded" @image-selected="handleImageAdded"
             @color-selector-opened="handleColorSelectorOpened" @shape-added="handleShapeAdded"
-            @prebuilt-item-added="handlePrebuiltItemAdded" />
+            @prebuilt-item-added="handlePrebuiltItemAdded" @snap-to-grid-toggled="toggleSnapToGrid" />
 
-        <div v-for="(img, index) in images" :key="index" class="target">
-            <Moveable class="moveable" v-bind:target="[`.mood-board-image-${index}`]" v-bind:draggable="true"
+        <div v-for="(text, index) in texts" :key="`text-${index}`" class="target">
+            <Moveable class="moveable" v-bind:target="[`.mood-board-text-${index}`]" v-bind:draggable="true"
                 v-bind:scalable="true" v-bind:rotatable="true" v-bind:bounds="boundsContainer" @drag="onDrag"
                 @scale="onScale" @rotate="onRotate" />
-            <img :src="img" :class="['mood-board-image', `mood-board-image-${index}`]" alt="Mood Board Image" />
+            <input :value="text" :class="['mood-board-text', `mood-board-text-${index}`]" alt="Mood Board Text" />
+        </div>
+
+        <div v-for="(img, index) in images" :key="`image-${index}`" class="target image-target" :style="{
+            position: 'absolute',
+            left: `${img.x || 0}px`,
+            top: `${img.y || 0}px`
+        }">
+            <Moveable class="moveable" v-bind:target="[`.mood-board-image-${index}`]" v-bind:draggable="true"
+                v-bind:scalable="true" v-bind:rotatable="true" v-bind:bounds="boundsContainer"
+                @drag="(e) => onImageDrag(e, index)" @scale="onScale" @rotate="onRotate" />
+            <img :src="img.src" :class="['mood-board-image', `mood-board-image-${index}`]" alt="Mood Board Image" />
         </div>
     </div>
 </template>
 
 <script>
+import { ref, nextTick } from 'vue'
 import Toolbar from './Toolbar.vue';
 import Moveable from 'vue3-moveable';
 
@@ -25,45 +37,71 @@ export default {
         Toolbar,
         Moveable,
     },
-    data() {
+    setup() {
+        const isMobileDevice = ref(false);
+        const isEditing = ref(false);
+        const title = ref('My Mood Board');
+        const images = ref([]);
+        const texts = ref([]);
+        const boundsContainer = ref(null);
+        const snapToGrid = ref(false);
+        const gridSize = ref(10);
+
         return {
-            isMobileDevice: false,
-            isEditing: false,
-            title: 'Mood Board Title',
-            images: [],
-            boundsContainer: null
-        };
+            isMobileDevice,
+            isEditing,
+            title,
+            images,
+            texts,
+            boundsContainer,
+            snapToGrid,
+            gridSize
+        }
     },
     mounted() {
         this.isMobileDevice = this.checkIfMobile();
         // Set the bounds to the mood board container
-        this.boundsContainer = {
-            left: 0,
-            top: 0,
-            right: this.$refs.moodBoard.offsetWidth,
-            bottom: this.$refs.moodBoard.offsetHeight
-        };
+        this.updateBoundsContainer();
     },
     methods: {
+        updateBoundsContainer() {
+            this.boundsContainer = {
+                left: 0,
+                top: 0,
+                right: this.$refs.moodBoard.offsetWidth,
+                bottom: this.$refs.moodBoard.offsetHeight
+            };
+        },
         checkIfMobile() {
             return /Mobi|Android/i.test(navigator.userAgent);
         },
+        toggleSnapToGrid(enabled) {
+            this.snapToGrid = enabled;
+        },
+        snapToGridPosition(position) {
+            if (!this.snapToGrid) return position;
+
+            // Round to the nearest grid point
+            return Math.round(position / this.gridSize) * this.gridSize;
+        },
         handleTextAdded() {
             // Logic to handle text added
+            this.texts.push('Enter Text')
             console.log('Text added');
         },
         handleImageAdded(file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                this.images.push(event.target.result);
+                // Store image with initial position
+                this.images.push({
+                    src: event.target.result,
+                    x: 0,
+                    y: 0
+                });
+
                 // Update bounds after adding a new image
-                this.$nextTick(() => {
-                    this.boundsContainer = {
-                        left: 0,
-                        top: 0,
-                        right: this.$refs.moodBoard.offsetWidth,
-                        bottom: this.$refs.moodBoard.offsetHeight
-                    };
+                nextTick(() => {
+                    this.updateBoundsContainer();
                 });
             };
             reader.readAsDataURL(file);
@@ -79,6 +117,26 @@ export default {
         handlePrebuiltItemAdded() {
             // Logic to handle prebuilt item added
             console.log('Prebuilt item added');
+        },
+        onImageDrag({ target, transform, left, top }, index) {
+            // Update the specific image's position
+            const gridLeft = this.snapToGrid ? this.snapToGridPosition(left) : left;
+            const gridTop = this.snapToGrid ? this.snapToGridPosition(top) : top;
+
+            // Update the image's position in the images array
+            this.images[index].x = gridLeft;
+            this.images[index].y = gridTop;
+
+            // Apply the transform
+            if (this.snapToGrid) {
+                const snappedTransform = transform.replace(
+                    /translate\(.*?\)/,
+                    `translate(${gridLeft}px, ${gridTop}px)`
+                );
+                target.style.transform = snappedTransform;
+            } else {
+                target.style.transform = transform;
+            }
         },
         onDrag({ target, transform }) {
             target.style.transform = transform;
@@ -103,47 +161,28 @@ export default {
     border-radius: 3px;
     margin: 2rem 0;
     background-color: white;
-    background-image: linear-gradient(lightgrey 1px, transparent 1px),
+    background-image:
+        linear-gradient(lightgrey 1px, transparent 1px),
         linear-gradient(90deg, lightgrey 1px, transparent 1px);
-    background-size: 10px 10px;
+    background-size: 10px 10px; // Match the grid size
     background-position: 0 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative; // Important for absolute positioning of child elements
-    overflow: hidden; // Prevents content from overflowing
-}
-
-.mood-board-title {
     position: relative;
-    z-index: 999;
-    background-color: rgba(255, 255, 255, 0.718);
-    padding: 0.5rem;
-    border-radius: 5px;
-}
-
-.mood-board-title-edit {
-    font-size: 1.5rem;
-    font-weight: bold;
-    border: 1px solid #ccc;
-    background-color: transparent;
-    color: inherit;
-    padding: 0.5rem;
-    width: fit-content;
-    min-width: 8rem;
-    margin-top: 1rem;
-    border-radius: 3px;
-    text-align: center;
+    overflow: hidden;
 }
 
 .mood-board-image {
-    max-width: 100%;
-    height: 250px;
-    width: auto;
+    max-width: 250px;
+    max-height: 250px;
+    object-fit: contain;
     border: 1px solid #ccc;
     border-radius: 5px;
-    display: block; // Ensure the image is treated as a block element
-    position: absolute; // Allow precise positioning
+}
+
+.image-target {
+    position: absolute;
 }
 
 @media (max-width: 768px) {
