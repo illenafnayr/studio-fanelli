@@ -73,7 +73,8 @@ export default {
     flex-direction: column;
     border: 1px solid black;
     border-radius: 3px;
-    height: 15rem;
+    height: 50%;
+    min-height: 12rem;
     width: 3.5rem;
     align-self: flex-start;
     margin: 1.8rem;

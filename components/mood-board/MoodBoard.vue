@@ -118,24 +118,28 @@ export default {
             // Logic to handle prebuilt item added
             console.log('Prebuilt item added');
         },
-        onImageDrag({ target, transform, left, top }, index) {
-            // Update the specific image's position
-            const gridLeft = this.snapToGrid ? this.snapToGridPosition(left) : left;
-            const gridTop = this.snapToGrid ? this.snapToGridPosition(top) : top;
-
-            // Update the image's position in the images array
-            this.images[index].x = gridLeft;
-            this.images[index].y = gridTop;
-
-            // Apply the transform
+        onImageDrag({ target, left, top }, index) {
+            // If snapToGrid is enabled, we snap to the grid
             if (this.snapToGrid) {
-                const snappedTransform = transform.replace(
-                    /translate\(.*?\)/,
-                    `translate(${gridLeft}px, ${gridTop}px)`
-                );
-                target.style.transform = snappedTransform;
+                // Snap the left and top positions to the nearest grid point
+                const gridLeft = this.snapToGridPosition(left);
+                const gridTop = this.snapToGridPosition(top);
+
+                // Update the specific image's position in the images array
+                this.images[index].x = gridLeft;
+                this.images[index].y = gridTop;
+
+                // Apply the snapped position to the target
+                target.style.left = `${gridLeft}px`;
+                target.style.top = `${gridTop}px`;
             } else {
-                target.style.transform = transform;
+                // If snapToGrid is false, apply the drag position directly
+                target.style.left = `${left}px`;
+                target.style.top = `${top}px`;
+
+                // Update the image's position in the images array without snapping
+                this.images[index].x = left;
+                this.images[index].y = top;
             }
         },
         onDrag({ target, transform }) {
