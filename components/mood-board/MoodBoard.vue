@@ -1,10 +1,17 @@
 <template>
     <div class="mood-board" ref="moodBoard">
-        <h2 v-if="!isMobileDevice && !isTitleEditing" class="mood-board-title" @dblclick="isTitleEditing = true">
-            {{ title }}
-        </h2>
-        <input v-if="isMobileDevice || isTitleEditing" class="mood-board-title-edit" v-model="title"
-            @blur="isTitleEditing = false" @keyup.enter="isTitleEditing = false" placeholder="My Mood Board" />
+        <div class="mood-board-title--container">
+            <h2 v-if="!isMobileDevice && !isTitleEditing" class="mood-board-title" @dblclick="isTitleEditing = true">
+                {{ title }}
+            </h2>
+            <img v-if="isMobileDevice || !isTitleEditing" src="../../assets/edit-icon.png" alt="Edit Icon"
+                class="edit-icon" />
+        </div>
+        <div class="title-container">
+            <input v-if="isMobileDevice || isTitleEditing" class="mood-board-title-edit" v-model="title"
+                @blur="isTitleEditing = false" @keyup.enter="isTitleEditing = false" placeholder="My Mood Board"
+                :style="{ fontSize: 'inherit', fontFamily: 'inherit' }" />
+        </div>
         <Toolbar @text-added="handleTextAdded" @image-selected="handleImageAdded"
             @color-selector-opened="handleColorSelectorOpened" @shape-added="handleShapeAdded"
             @prebuilt-item-added="handlePrebuiltItemAdded" @snap-to-grid-toggled="toggleSnapToGrid" />
@@ -184,31 +191,58 @@ export default {
     align-items: center;
     position: relative;
     overflow: hidden;
-}
 
-.mood-board-image {
-    max-width: 250px;
-    max-height: 250px;
-    object-fit: contain;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
+    .mood-board-title--container {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        gap: 1rem;
 
-.mood-board-text {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: white;
-    font-size: 14px;
-}
+        img {
+            margin-bottom: 5px;
+        }
+    }
 
-.mood-board-text.is-editing {
-    outline: 2px solid blue;
-    background-color: #f0f8ff;
-}
+    .mood-board-title-edit {
+        margin: 1rem;
+        padding: 0.5rem;
+    }
 
-.image-target,
-.text-target {
-    position: absolute;
+    .title-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .image-target,
+    .text-target {
+        position: absolute;
+    }
+
+    .mood-board-image {
+        max-width: 250px;
+        max-height: 250px;
+        object-fit: contain;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .mood-board-text {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: white;
+        font-size: 14px;
+
+        &.is-editing {
+            outline: 2px solid rgb(51, 51, 115);
+            background-color: #f0f8ff;
+        }
+    }
+
+    .edit-icon {
+        width: 20px;
+        height: 20px;
+        margin-left: 8px;
+    }
 }
 </style>
