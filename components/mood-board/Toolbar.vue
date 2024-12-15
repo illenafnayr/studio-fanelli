@@ -5,7 +5,7 @@
             <img id="add-image-icon" src="../../assets/add-image-icon.png" @click="addImage" />
             <img id="color-select-icon" src="../../assets/color-select-icon.png" @click="openColorSelector" />
             <img id="shape-icon" src="../../assets/shape-icon.png" @click="addShape" />
-            <img id="prebuilt-icon" src="../../assets/prebuilt-icon.png" @click="addPrebuiltItem" />
+            <img id="draw-icon" src="../../assets/draw-icon.png" @click="selectDrawTool" />
             
             <!-- New Snap to Grid toggle -->
             <div class="snap-to-grid-container">
@@ -53,9 +53,9 @@ export default {
             // Logic to add shape
             this.$emit('shape-added'); // Emit event
         },
-        addPrebuiltItem() {
+        selectDrawTool() {
             // Logic to add prebuilt item
-            this.$emit('prebuilt-item-added'); // Emit event
+            this.$emit('draw-tool-selected'); // Emit event
         },
         toggleSnapToGrid() {
             // Emit an event with the current state of snap to grid

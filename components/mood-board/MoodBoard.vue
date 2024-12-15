@@ -1,5 +1,7 @@
 <template>
     <div class="mood-board" ref="moodBoard">
+        <canvas ref="canvasRef" @mousedown="startDrawing" @mouseup="stopDrawing" @mousemove="draw"
+            :style="{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', zIndex: 1 }"></canvas>
         <div class="mood-board-title--container">
             <h2 v-if="!isMobileDevice && !isTitleEditing" class="mood-board-title" @dblclick="isTitleEditing = true">
                 {{ title }}
@@ -14,7 +16,7 @@
         </div>
         <Toolbar @text-added="handleTextAdded" @image-selected="handleImageAdded"
             @color-selector-opened="handleColorSelectorOpened" @shape-added="handleShapeAdded"
-            @prebuilt-item-added="handlePrebuiltItemAdded" @snap-to-grid-toggled="toggleSnapToGrid" />
+            @draw-tool-selected="handleDrawToolSelected" @snap-to-grid-toggled="toggleSnapToGrid" />
 
         <div v-for="(text, index) in texts" :key="`text-${index}`" class="target text-target" :style="{
             position: 'absolute',
@@ -44,7 +46,7 @@
 </template>
 
 <script>
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, onMounted, onUnmounted } from 'vue';
 import Toolbar from './Toolbar.vue';
 import Moveable from 'vue3-moveable';
 
@@ -62,6 +64,116 @@ export default {
         const boundsContainer = ref(null);
         const snapToGrid = ref(false);
         const gridSize = ref(10);
+        const isDrawing = ref(false);
+        const color = ref('#000000'); // Default color
+        const canvasRef = ref(null);
+        const ctx = ref(null);
+
+        const initializeCanvas = () => {
+            if (canvasRef.value) {
+                // Set canvas to full size of parent container with device pixel ratio
+                const container = canvasRef.value.parentElement;
+                const dpr = window.devicePixelRatio || 1;
+
+                // Set display size
+                canvasRef.value.style.width = `${container.clientWidth}px`;
+                canvasRef.value.style.height = `${container.clientHeight}px`;
+
+                // Scale canvas for high DPI screens
+                canvasRef.value.width = container.clientWidth * dpr;
+                canvasRef.value.height = container.clientHeight * dpr;
+
+                // Get 2D rendering context
+                const context = canvasRef.value.getContext('2d');
+                context.scale(dpr, dpr);
+
+                ctx.value = context;
+                ctx.value.lineCap = 'round';
+                ctx.value.lineWidth = 5;
+                ctx.value.strokeStyle = color.value;
+            }
+        };
+
+        const startDrawing = (event) => {
+            if (!ctx.value) return;
+
+            isDrawing.value = true;
+            const rect = canvasRef.value.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            ctx.value.beginPath();
+            ctx.value.moveTo(x, y);
+        };
+
+        const draw = (event) => {
+            if (!isDrawing.value || !ctx.value) return;
+
+            const rect = canvasRef.value.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            ctx.value.lineTo(x, y);
+            ctx.value.stroke();
+        };
+
+        const stopDrawing = () => {
+            if (!ctx.value) return;
+
+            isDrawing.value = false;
+            ctx.value.closePath();
+        };
+
+        const handleDrawToolSelected = () => {
+            const selectedColor = prompt("Select a color (hex code):", color.value);
+            if (selectedColor) {
+                color.value = selectedColor;
+                if (ctx.value) {
+                    ctx.value.strokeStyle = color.value;
+                }
+            }
+
+            // Ensure canvas is initialized and clear previous drawings
+            nextTick(() => {
+                initializeCanvas();
+                if (ctx.value) {
+                    ctx.value.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
+                }
+            });
+        };
+
+        onMounted(() => {
+            isMobileDevice.value = /Mobi|Android/i.test(navigator.userAgent);
+
+            // Initialize canvas with a slight delay to ensure DOM is ready
+            nextTick(() => {
+                initializeCanvas();
+                updateBoundsContainer();
+                window.addEventListener('resize', () => {
+                    initializeCanvas();
+                    updateBoundsContainer();
+                });
+            });
+        });
+
+        onUnmounted(() => {
+            window.removeEventListener('resize', () => {
+                initializeCanvas();
+                updateBoundsContainer();
+            });
+        });
+
+        const updateBoundsContainer = () => {
+            const moodBoard = document.querySelector('.mood-board');
+            if (moodBoard) {
+                boundsContainer.value = {
+                    left: 0,
+                    top: 0,
+                    right: moodBoard.offsetWidth,
+                    bottom: moodBoard.offsetHeight,
+                };
+            }
+        };
 
         return {
             isMobileDevice,
@@ -72,28 +184,17 @@ export default {
             boundsContainer,
             snapToGrid,
             gridSize,
+            isDrawing,
+            color,
+            canvasRef,
+            startDrawing,
+            stopDrawing,
+            draw,
+            handleDrawToolSelected,
+            ctx,
         };
     },
-    mounted() {
-        this.isMobileDevice = this.checkIfMobile();
-        this.updateBoundsContainer();
-        window.addEventListener('resize', this.updateBoundsContainer);
-    },
-    unmounted() {
-        window.removeEventListener('resize', this.updateBoundsContainer);
-    },
     methods: {
-        updateBoundsContainer() {
-            const moodBoard = this.$refs.moodBoard;
-            if (moodBoard) {
-                this.boundsContainer = {
-                    left: 0,
-                    top: 0,
-                    right: moodBoard.offsetWidth,
-                    bottom: moodBoard.offsetHeight,
-                };
-            }
-        },
         checkIfMobile() {
             return /Mobi|Android/i.test(navigator.userAgent);
         },
@@ -158,9 +259,6 @@ export default {
         },
         handleShapeAdded() {
             console.log('Shape added');
-        },
-        handlePrebuiltItemAdded() {
-            console.log('Prebuilt item added');
         },
         onScale({ target, drag }) {
             target.style.transform = drag.transform;
