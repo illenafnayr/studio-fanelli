@@ -4,7 +4,7 @@
             <img id="text-icon" src="../../assets/text-icon.png" @click="addText" />
             <img id="add-image-icon" src="../../assets/add-image-icon.png" @click="addImage" />
             <img id="color-select-icon" src="../../assets/color-select-icon.png" @click="openColorSelector" />
-            <img id="shape-icon" src="../../assets/shape-icon.png" @click="addShape" />
+            <!-- <img id="shape-icon" src="../../assets/shape-icon.png" @click="addShape" /> -->
             <img id="draw-icon" src="../../assets/draw-icon.png" @click="selectDrawTool" />
             
             <!-- New Snap to Grid toggle -->
